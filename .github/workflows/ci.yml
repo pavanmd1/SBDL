@@ -1,0 +1,48 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ dev, release ]
+  pull_request:
+    branches: [ dev, release, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python and Pipenv
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Sync Python environment
+        run: pipenv --python python3 sync
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python and Pipenv
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Run tests
+        run: pipenv run pytest
+
+  package:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/release'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create ZIP package
+        run: zip -r sbdl.zip lib
