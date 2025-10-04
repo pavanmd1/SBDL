@@ -23,5 +23,5 @@ jobs:
         run: |
           git fetch origin
           git checkout release
-          git merge origin/dev --no-edit
+          git merge origin/dev --no-edit --allow-unrelated-histories
           git push origin release
